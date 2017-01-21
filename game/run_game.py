@@ -3,6 +3,7 @@
 
 import pygame, sys, os, math
 from modulos.colors import *
+from modulos.bomber import *
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
@@ -50,17 +51,41 @@ while cond_menu:
 	ventana.blit(background_menu,(0,0))
 	ventana.blit(flecha_imagen,(posX,int(posY+math.degrees(math.sin(seno)) / 2 )) )
 	pygame.display.update()
+# end menu loop --------------------------------------------------------
+
+bombero = Bombero(300,300)
+dx, dy = 0,0
+luz_bombero = pygame.image.load("imagenes/linterna.png")
+background_game = pygame.image.load("imagenes/background_game.png").convert()
 
 # juego loop -----------------------------------------------------------
+
 while cond_jugar:
+	filtro = pygame.surface.Surface((1024,700))
+
 	#procesar eventos
 	for e in pygame.event.get():
 		if e.type == pygame.QUIT:
 			cond_jugar = False
 		if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
 			cond_jugar = False
+	key = pygame.key.get_pressed()
+	if key[pygame.K_LEFT]:
+		bombero.mover(-3,0)
+	if key[pygame.K_RIGHT]:
+		bombero.mover(3,0)
+	if key[pygame.K_UP]:
+		bombero.mover(0,-3)
+	if key[pygame.K_DOWN]:
+		bombero.mover(0,3)
 	#actualizar
 	reloj.tick(60)
+	bombero.actualizar()
 	#dibujar
-	ventana.fill(rojo)
-	pygame.display.update()
+	ventana.blit(background_game,(0,0))
+	filtro.fill(blanco)
+	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
+	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
+	bombero.dibujar(ventana)
+	
+	pygame.display.flip()
